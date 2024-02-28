@@ -1,9 +1,11 @@
 <script setup>
+import Home from "./view/Home.vue";
 </script>
 
 <template>
-  <router-view />
+  <Home />
 </template>
 
-<style scoped>
+<style scoped lang="scss">
+@use "assets/scss/value";
 </style>

@@ -1,0 +1,180 @@
+{
+    "BasicCity": [
+        {
+            "City": "Taipei",
+            "CityCode": "TPE",
+            "CityID": "A",
+            "CityName": "臺北市",
+            "CountyID": "A",
+            "Version": "23.09.1"
+        },
+        {
+            "City": "Taichung",
+            "CityCode": "TXG",
+            "CityID": "B",
+            "CityName": "臺中市",
+            "CountyID": "B",
+            "Version": "23.09.1"
+        },
+        {
+            "City": "Keelung",
+            "CityCode": "KEE",
+            "CityID": "C",
+            "CityName": "基隆市",
+            "CountyID": "C",
+            "Version": "23.09.1"
+        },
+        {
+            "City": "Tainan",
+            "CityCode": "TNN",
+            "CityID": "D",
+            "CityName": "臺南市",
+            "CountyID": "D",
+            "Version": "23.09.1"
+        },
+        {
+            "City": "Kaohsiung",
+            "CityCode": "KHH",
+            "CityID": "E",
+            "CityName": "高雄市",
+            "CountyID": "E",
+            "Version": "23.09.1"
+        },
+        {
+            "City": "NewTaipei",
+            "CityCode": "NWT",
+            "CityID": "F",
+            "CityName": "新北市",
+            "CountyID": "F",
+            "Version": "23.09.1"
+        },
+        {
+            "City": "YilanCounty",
+            "CityCode": "ILA",
+            "CityID": "G",
+            "CityName": "宜蘭縣",
+            "CountyID": "G",
+            "Version": "23.09.1"
+        },
+        {
+            "City": "Taoyuan",
+            "CityCode": "TAO",
+            "CityID": "H",
+            "CityName": "桃園市",
+            "CountyID": "H",
+            "Version": "23.09.1"
+        },
+        {
+            "City": "Chiayi",
+            "CityCode": "CYI",
+            "CityID": "I",
+            "CityName": "嘉義市",
+            "CountyID": "I",
+            "Version": "23.09.1"
+        },
+        {
+            "City": "HsinchuCounty",
+            "CityCode": "HSQ",
+            "CityID": "J",
+            "CityName": "新竹縣",
+            "CountyID": "J",
+            "Version": "23.09.1"
+        },
+        {
+            "City": "MiaoliCounty",
+            "CityCode": "MIA",
+            "CityID": "K",
+            "CityName": "苗栗縣",
+            "CountyID": "K",
+            "Version": "23.09.1"
+        },
+        {
+            "City": "NantouCounty",
+            "CityCode": "NAN",
+            "CityID": "M",
+            "CityName": "南投縣",
+            "CountyID": "M",
+            "Version": "23.09.1"
+        },
+        {
+            "City": "ChanghuaCounty",
+            "CityCode": "CHA",
+            "CityID": "N",
+            "CityName": "彰化縣",
+            "CountyID": "N",
+            "Version": "23.09.1"
+        },
+        {
+            "City": "Hsinchu",
+            "CityCode": "HSZ",
+            "CityID": "O",
+            "CityName": "新竹市",
+            "CountyID": "O",
+            "Version": "23.09.1"
+        },
+        {
+            "City": "YunlinCounty",
+            "CityCode": "YUN",
+            "CityID": "P",
+            "CityName": "雲林縣",
+            "CountyID": "P",
+            "Version": "23.09.1"
+        },
+        {
+            "City": "ChiayiCounty",
+            "CityCode": "CYQ",
+            "CityID": "Q",
+            "CityName": "嘉義縣",
+            "CountyID": "Q",
+            "Version": "23.09.1"
+        },
+        {
+            "City": "PingtungCounty",
+            "CityCode": "PIF",
+            "CityID": "T",
+            "CityName": "屏東縣",
+            "CountyID": "T",
+            "Version": "23.09.1"
+        },
+        {
+            "City": "HualienCounty",
+            "CityCode": "HUA",
+            "CityID": "U",
+            "CityName": "花蓮縣",
+            "CountyID": "U",
+            "Version": "23.09.1"
+        },
+        {
+            "City": "TaitungCounty",
+            "CityCode": "TTT",
+            "CityID": "V",
+            "CityName": "臺東縣",
+            "CountyID": "V",
+            "Version": "23.09.1"
+        },
+        {
+            "City": "KinmenCounty",
+            "CityCode": "KIN",
+            "CityID": "W",
+            "CityName": "金門縣",
+            "CountyID": "W",
+            "Version": "23.09.1"
+        },
+        {
+            "City": "PenghuCounty",
+            "CityCode": "PEN",
+            "CityID": "X",
+            "CityName": "澎湖縣",
+            "CountyID": "X",
+            "Version": "23.09.1"
+        },
+        {
+            "City": "LienchiangCounty",
+            "CityCode": "LIE",
+            "CityID": "Z",
+            "CityName": "連江縣",
+            "CountyID": "Z",
+            "Version": "23.09.1"
+        }
+    ]
+}
