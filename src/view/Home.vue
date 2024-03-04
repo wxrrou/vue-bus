@@ -85,7 +85,7 @@
             :style="{ fontWeight: getStatus(s)[1] === 0 ? 700 : 400 }"
             v-for="s in getRouteData"
             :key="s.StopID"
-            @click="ss"
+            @click="clickStop(s)"
           >
             <div class="stopTime" :style="getColor(getStatus(s)[1])">
               {{ getStatus(s)[0] }}
@@ -142,6 +142,8 @@
 <script >
 import NavBar from "../components/NavBar.vue";
 import CityData from "../assets/json/basicCity.json";
+
+let map = {};
 
 const FULL_DASH_ARRAY = 283;
 const WARNING_THRESHOLD = 10;
@@ -264,7 +266,7 @@ export default {
     },
     initMap() {
       // 地圖
-      const map = L.map("map", {
+      map = L.map("map", {
         center: [25.042474, 121.513729],
         zoom: 18,
         zoomControl: false,
@@ -292,18 +294,16 @@ export default {
       if (this.busData.length !== 0) {
         var index = this.busData.findIndex((d) => d.RouteUID === nUID);
         var RouteName = this.busData[index].RouteName.Zh_tw;
-        this.tabIndex = 0;
-        this.subTabIndex = 0;
 
         try {
           const estimatedTimeOfArrival =
-            "https://tdx.transportdata.tw/api/basic/v2/Bus/EstimatedTimeOfArrival/City/" +
+            "/Bus/EstimatedTimeOfArrival/City/" +
             this.selectCity +
             "/" +
             RouteName +
             "?format=JSON";
           const stopOfRoute =
-            "https://tdx.transportdata.tw/api/basic/v2/Bus/StopOfRoute/City/" +
+            "/Bus/StopOfRoute/City/" +
             this.selectCity +
             "/" +
             RouteName +
@@ -313,11 +313,12 @@ export default {
             const stopData = response.data.filter(
               (data) => data.RouteUID === nUID
             );
-            console.log(stopData);
+            // console.log(stopData);
             // EstimatedTimeOfArrival
+
             this.axios.get(estimatedTimeOfArrival).then((response) => {
               const estData = response.data;
-              console.log(estData);
+              // console.log(estData);
               this.mergedRouteStopData(stopData, estData);
               this.startTimer();
             });
@@ -375,7 +376,9 @@ export default {
       this.subRoute = Array.from(
         new Set(values.map((item) => JSON.stringify(item)))
       ).map((item) => JSON.parse(item));
-      this.subTabIndex = this.subRoute[0].SubRouteUID;
+      if (this.subTabIndex === 0) {
+        this.subTabIndex = this.subRoute[0].SubRouteUID;
+      }
     },
     getColor(value) {
       switch (value) {
@@ -445,6 +448,59 @@ export default {
         }
       }
     },
+    // map
+    updateMap(data) {
+      // clear markers
+      map.eachLayer((layer) => {
+        if (
+          layer instanceof L.Marker ||
+          layer instanceof L.Polyline ||
+          layer instanceof L.Popup
+        ) {
+          map.removeLayer(layer);
+        }
+      });
+      // map.closePopup();
+
+      // add markers
+      const latlngs = [];
+      data.forEach((stop) => {
+        const latlng = [
+          stop.StopPosition.PositionLat,
+          stop.StopPosition.PositionLon,
+        ];
+        latlngs.push(latlng);
+
+        L.marker(latlng).addTo(map).bindPopup(`
+          <p><strong style="font-size: 20px;">${stop.StopName.Zh_tw}</strong></p>
+          <p><strong style="font-size: 20px;">${stop.StopName.En}</strong></p>
+          `);
+      });
+
+      var polyline = L.polyline(latlngs, { color: "#ffb703", weight: 5 }).addTo(
+        map
+      );
+
+      // zoom the map to the polyline
+      map.fitBounds(polyline.getBounds());
+    },
+    clickStop(stop) {
+      const latlng = [
+        stop.StopPosition.PositionLat,
+        stop.StopPosition.PositionLon,
+      ];
+      map.flyTo(latlng, 17);
+      const popup = L.popup();
+      popup
+        .setLatLng(latlng)
+        .setContent(
+          `
+          <p><strong style="font-size: 20px;">${stop.StopName.Zh_tw}</strong></p>
+          <p><strong style="font-size: 20px;">${stop.StopName.En}</strong></p>
+          `
+        )
+        .openOn(map);
+    },
   },
   watch: {
     timeLeft(newValue) {
@@ -455,11 +511,8 @@ export default {
     selectCity: async function (nCity) {
       if (nCity != "") {
         try {
-          const api =
-            "https://tdx.transportdata.tw/api/basic/v2/Bus/Route/City/" +
-            nCity +
-            "?format=JSON";
-          this.axios.get(api).then((response) => {
+          const path = "/Bus/Route/City/" + nCity + "?format=JSON";
+          this.axios.get(path).then((response) => {
             this.busData = response.data;
           });
         } catch (error) {
@@ -468,10 +521,23 @@ export default {
       }
     },
     routeUID: async function (nUID) {
-      await this.getbusRoute(nUID);
+      try {
+        this.tabIndex = 0;
+        this.subTabIndex = 0;
+        await this.getbusRoute(nUID);
+      } catch (error) {
+        console.error(error);
+      }
     },
-    stopInfoContainer: function (n) {
-      console.log(n);
+    getRouteData(newValue, oldValue) {
+      if (
+        newValue &&
+        (!oldValue ||
+          newValue.map((item) => item.StopUID).join(",") !==
+            oldValue.map((item) => item.StopUID).join(","))
+      ) {
+        this.updateMap(newValue);
+      }
     },
   },
 };
@@ -727,7 +793,11 @@ export default {
       height: 3.5vw;
       font-weight: 400;
       padding: 0 1vw;
-      // border-bottom: 0.1vw solid value.$color-blue-l;
+      cursor: pointer;
+      &:hover {
+        // opacity: 0.8;
+        background-color: #a8dadc80;
+      }
       .stopTime {
         // width: max-content;
         // width: 5.5vw;
