@@ -769,7 +769,7 @@ $breakpoint: 992px;
     justify-content: space-around;
     align-items: center;
     width: 100%;
-    margin: 5px 0;
+    min-height: 30px;
     font-weight: 400;
     // background-color: value.$color-blue-l;
     border-radius: 1.5vw 1.5vw 0 0;
