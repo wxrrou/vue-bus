@@ -1,6 +1,9 @@
 <template >
   <NavBar />
   <div class="mapContainer">
+    <div v-if="isLoading" class="loaderContainer">
+      <div class="loader"></div>
+    </div>
     <div class="mapContent">
       <span>搜尋公車路線</span>
       <div class="selectContainer">
@@ -134,7 +137,6 @@
         </div>
       </div>
     </div>
-
     <div id="map"></div>
   </div>
 </template>
@@ -179,6 +181,7 @@ export default {
     routeUID: "",
     routeStopData: [],
     subRoute: [],
+    isLoading: false,
   }),
   created() {
     this.getAuthorizationHeader();
@@ -294,7 +297,7 @@ export default {
       if (this.busData.length !== 0) {
         var index = this.busData.findIndex((d) => d.RouteUID === nUID);
         var RouteName = this.busData[index].RouteName.Zh_tw;
-
+        this.isLoading = true;
         try {
           const estimatedTimeOfArrival =
             "/Bus/EstimatedTimeOfArrival/City/" +
@@ -315,12 +318,12 @@ export default {
             );
             // console.log(stopData);
             // EstimatedTimeOfArrival
-
             this.axios.get(estimatedTimeOfArrival).then((response) => {
               const estData = response.data;
               // console.log(estData);
               this.mergedRouteStopData(stopData, estData);
               this.startTimer();
+              this.isLoading = false;
             });
           });
         } catch (error) {
@@ -385,22 +388,22 @@ export default {
         case 0:
           return {
             color: "#fb8500",
-            border: "0.2vw solid #fb8500",
+            border: "1.5px solid #fb8500",
           };
         case 1:
           return {
             color: "#457b9d",
-            border: "0.2vw solid #457b9d",
+            border: "1.5px solid #457b9d",
           };
         case 2:
           return {
             color: "#1d3557",
-            border: "0.2vw solid #1d3557",
+            border: "1.5px solid #1d3557",
           };
         default:
           return {
             color: "#a8abb2",
-            border: "0.2vw solid #a8abb2",
+            border: "1.5px solid #a8abb2",
           };
       }
     },
@@ -460,7 +463,6 @@ export default {
           map.removeLayer(layer);
         }
       });
-      // map.closePopup();
 
       // add markers
       const latlngs = [];
@@ -545,20 +547,34 @@ export default {
 
 <style lang='scss' scoped>
 @use "../assets/scss/value";
+$breakpoint: 992px;
+
 #app {
   display: flex;
   flex-direction: column;
 }
 .mapContainer {
-  position: relative;
   display: flex;
-  flex-direction: row;
-  height: calc(100vh - 5.5vw);
+  position: relative;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 5.5vw - 4px);
   background-color: value.$color-white;
+  @media (min-width: $breakpoint) {
+    flex-direction: row;
+  }
 }
 #map {
   width: 100%;
   height: 100%;
+  @media (max-width: $breakpoint) {
+    position: absolute !important;
+    top: calc(1.5% + 3.75vw + 92px);
+    left: 50%;
+    transform: translate(-50%, 0);
+    height: 30vh;
+    width: calc(97% - 2vw);
+  }
 }
 .mapContent {
   display: flex;
@@ -576,7 +592,19 @@ export default {
   box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2);
   border-radius: 1.5vw;
   font-weight: 700;
-  font-size: 2.25vw;
+  font-size: 18px;
+  @media (max-width: $breakpoint) {
+    font-size: 12px;
+    top: 0;
+    min-width: calc(97% - 2vw);
+    max-width: calc(97% - 2vw);
+  }
+  > span {
+    font-size: 28px;
+    @media (max-width: $breakpoint) {
+      font-size: 20px;
+    }
+  }
 }
 .selectContainer {
   display: flex;
@@ -584,12 +612,18 @@ export default {
   align-items: center;
   gap: 0.75vw;
   margin: 1vw 0;
+  @media (max-width: $breakpoint) {
+    margin-bottom: calc(30vh + 15px);
+  }
 }
 :deep(.el-select__wrapper) {
   height: 2.5vw;
   border-radius: 2vw;
   box-shadow: 0 0.5px 4px 0 rgba(0, 0, 0, 0.2);
-  font-size: 1.25vw;
+  font-size: 16px;
+  @media (max-width: $breakpoint) {
+    font-size: 12px;
+  }
   line-height: 1.5;
   padding: 1rem;
   .el-select__selection {
@@ -619,12 +653,15 @@ export default {
   flex-direction: row;
   justify-content: start;
   align-items: center;
-  gap: 0.5vw;
+  gap: 4px;
   width: 100%;
-  height: 2.5vw;
-  margin-bottom: 1vw;
+  height: 28px;
+  margin-bottom: 10px;
+  @media (max-width: $breakpoint) {
+    height: 24px;
+    margin-bottom: 5px;
+  }
   font-weight: 400;
-  font-size: 1.25vw;
   color: value.$color-navy;
   overflow-x: scroll;
   overflow-y: visible;
@@ -636,11 +673,11 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100%;
+    height: 90%;
     font-weight: 400;
-    padding: 0 0.25vw;
-    border: 0.1vw solid value.$color-navy;
-    border-radius: 0.5vw;
+    padding: 0 3px;
+    border: 1px solid value.$color-navy;
+    border-radius: 8px;
     width: max-content;
     flex-wrap: nowrap;
     word-break: keep-all;
@@ -651,7 +688,7 @@ export default {
       & + label {
         color: value.$color-orange;
         font-weight: 600;
-        border: 0.1vw solid value.$color-orange;
+        border: 1px solid value.$color-orange;
       }
     }
   }
@@ -666,7 +703,6 @@ export default {
   box-shadow: 0 0.5px 4px 0 rgba(0, 0, 0, 0.2);
   background-color: value.$color-white;
   border-radius: 1.5vw;
-  font-size: 1.5vw;
   position: relative;
   .refresh {
     cursor: pointer;
@@ -678,7 +714,9 @@ export default {
     bottom: 5vh;
     width: 5vw;
     height: 5vw;
-    border-radius: 2.5vw;
+    min-width: 36px;
+    min-height: 36px;
+    border-radius: 50%;
     background-color: #fff;
     z-index: 10;
     box-shadow: 0 0.5px 4px 0 rgba(0, 0, 0, 0.2);
@@ -686,6 +724,8 @@ export default {
       position: absolute;
       width: 2.5vw;
       height: 2.5vw;
+      min-width: 20px;
+      min-height: 20px;
       top: auto;
       bottom: auto;
       display: flex;
@@ -700,11 +740,11 @@ export default {
       stroke: none;
     }
     &__path-elapsed {
-      stroke-width: 0.75vw;
+      stroke-width: 8px;
       stroke: #a8abb2;
     }
     &__path-remaining {
-      stroke-width: 0.75vw;
+      stroke-width: 8px;
       stroke-linecap: round;
       transform: rotate(90deg);
       transform-origin: center;
@@ -729,12 +769,11 @@ export default {
     justify-content: space-around;
     align-items: center;
     width: 100%;
-    margin-bottom: 0.5vw;
+    margin: 5px 0;
     font-weight: 400;
     // background-color: value.$color-blue-l;
     border-radius: 1.5vw 1.5vw 0 0;
     font-weight: 600;
-    font-size: 1.25vw;
     color: value.$color-navy;
     .tab {
       display: flex;
@@ -791,31 +830,34 @@ export default {
       justify-content: space-around;
       align-items: center;
       height: 3.5vw;
+      min-height: 28px;
       font-weight: 400;
-      padding: 0 1vw;
+      padding: 0 5px;
       cursor: pointer;
       &:hover {
         // opacity: 0.8;
         background-color: #a8dadc80;
       }
       .stopTime {
-        // width: max-content;
-        // width: 5.5vw;
-        min-width: 9.5vw;
+        // width: fit-content;
+        min-width: fit-content;
+        padding: 0 5px;
         white-space: nowrap;
-        border: 0.2vw solid value.$color-navy;
-        border-radius: 2vw;
+        border: 1.5px solid value.$color-navy;
+        border-radius: 20px;
         line-height: 1.5;
       }
       .stopName {
         width: 100%;
         text-align: start;
-        margin-left: 1vw;
+        margin-left: 10px;
       }
       .stopStatus {
         position: relative;
         width: 3.5vw;
+        min-width: 28px;
         height: 3.5vw;
+        min-height: 28px;
         color: value.$color-white;
         z-index: 1;
         line-height: 1;
@@ -830,7 +872,9 @@ export default {
           transform: translate(-50%, -50%);
           z-index: -1;
           width: 1vw;
+          min-width: 10px;
           height: 1vw;
+          min-height: 10px;
           border-radius: 50%;
           background-color: value.$color-navy;
         }
@@ -842,6 +886,7 @@ export default {
           left: 50%;
           transform: translate(-50%, 0%);
           width: 0.2vw;
+          min-width: 2px;
           height: 100%;
           background-color: value.$color-navy;
           z-index: -1;
@@ -897,7 +942,51 @@ export default {
     scale: 1.1;
   }
 }
+.loaderContainer {
+  position: fixed;
+  top: 0;
+  left: auto;
+  right: auto;
+  width: 100%;
+  height: 100%;
+  background-color: #a8dadc80;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.loader {
+  width: fit-content;
+  font-weight: bold;
+  font-size: 3vw;
+  background: radial-gradient(
+      circle closest-side,
+      value.$color-yellow 94%,
+      #0000
+    )
+    right/calc(200% - 1em) 100%;
+  animation: l24 1s infinite alternate linear;
+  &:before {
+    content: "Loading...";
+    line-height: 1em;
+    color: #0000;
+    background: inherit;
+    background-image: radial-gradient(
+      circle closest-side,
+      #fff 94%,
+      value.$color-navy
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+}
+@keyframes l24 {
+  100% {
+    background-position: left;
+  }
+}
 </style>
+
 
 
 
