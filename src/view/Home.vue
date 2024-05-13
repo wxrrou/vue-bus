@@ -143,8 +143,7 @@
 
 <script >
 import NavBar from "../components/NavBar.vue";
-import CityData from "../assets/json/basicCity.json";
-
+import { mapState, mapActions, mapGetters } from "vuex";
 let map = {};
 
 const FULL_DASH_ARRAY = 283;
@@ -170,19 +169,6 @@ export default {
   components: {
     NavBar: NavBar,
   },
-  data: () => ({
-    timePassed: 0,
-    timerInterval: null,
-    subTabIndex: 0,
-    tabIndex: 0,
-    cityData: CityData.BasicCity,
-    selectCity: "",
-    busData: [],
-    routeUID: "",
-    routeStopData: [],
-    subRoute: [],
-    isLoading: false,
-  }),
   created() {
     this.getAuthorizationHeader();
   },
@@ -190,6 +176,49 @@ export default {
     this.initMap();
   },
   computed: {
+    ...mapState([
+      "timePassed",
+      "timerInterval",
+      "cityData",
+      "busData",
+      "routeStopData",
+      "subRoute",
+      "isLoading",
+    ]),
+    ...mapGetters(["getRouteData", "getStopName"]),
+    selectCity: {
+      get() {
+        return this.$store.state.selectCity;
+      },
+      set(value) {
+        this.updateSelectCity(value);
+      },
+    },
+    routeUID: {
+      get() {
+        return this.$store.state.routeUID;
+      },
+      set(value) {
+        this.updateRouteUID(value);
+      },
+    },
+    subTabIndex: {
+      get() {
+        return this.$store.state.subTabIndex;
+      },
+      set(value) {
+        this.updateSubTabIndex(value);
+      },
+    },
+    tabIndex: {
+      get() {
+        return this.$store.state.tabIndex;
+      },
+      set(value) {
+        this.updateTabIndex(value);
+      },
+    },
+
     // timer
     circleDasharray() {
       return `${(this.timeFraction * FULL_DASH_ARRAY).toFixed(0)} 283`;
@@ -211,49 +240,25 @@ export default {
         return info.color;
       }
     },
-
-    // bus route
-    getRouteData() {
-      let route = this.routeStopData.filter(
-        (item) => item.SubRouteUID === this.subTabIndex
-      );
-      if (route.length === 1) {
-        return route[0].Stops;
-      } else if (route.length >= 2) {
-        return route.find((item) => item.Direction === parseInt(this.tabIndex))
-          .Stops;
-      }
-    },
-    getStopName() {
-      const index = this.busData.findIndex((b) => b.RouteUID === this.routeUID);
-      if (index !== -1) {
-        let route = this.routeStopData.filter(
-          (item) => item.SubRouteUID === this.subTabIndex
-        );
-        if (route.length === 1) {
-          if (route[0].Direction === 0) {
-            return [this.busData[index].DestinationStopNameZh];
-          } else {
-            return [this.busData[index].DepartureStopNameZh];
-          }
-        } else {
-          return [
-            this.busData[index].DestinationStopNameZh,
-            this.busData[index].DepartureStopNameZh,
-          ];
-        }
-      }
-      return "";
-    },
   },
   methods: {
-    getAuthorizationHeader() {
+    ...mapActions([
+      // 'increment', // 将 `this.increment()` 映射为 `this.$store.dispatch('increment')`
+      // `mapActions` 也支持载荷：
+      // 'incrementBy' // 将 `this.incrementBy(amount)` 映射为 `this.$store.dispatch('incrementBy', amount)`
+      "updateSelectCity",
+      "updateRouteUID",
+      "updateSubTabIndex",
+      "updateTabIndex",
+      "getbusRoute",
+    ]),
+    async getAuthorizationHeader() {
       const parameter = {
         grant_type: "client_credentials",
         client_id: import.meta.env.VITE_APP_CLIENTID,
         client_secret: import.meta.env.VITE_APP_CLIENT_SECRET,
       };
-      this.axios
+      await this.axios
         .post(import.meta.env.VITE_APP_AUTHURL, parameter, {
           headers: {
             "content-type": "application/x-www-form-urlencoded",
@@ -267,6 +272,7 @@ export default {
           console.log(error);
         });
     },
+
     initMap() {
       // 地圖
       map = L.map("map", {
@@ -285,55 +291,8 @@ export default {
         .addTo(map);
     },
 
-    // timer
-    startTimer() {
-      clearInterval(this.timerInterval);
-      this.timePassed = 0;
-      this.timerInterval = setInterval(() => (this.timePassed += 1), 1000);
-    },
-
-    // bus route
-    async getbusRoute(nUID) {
-      if (this.busData.length !== 0) {
-        var index = this.busData.findIndex((d) => d.RouteUID === nUID);
-        var RouteName = this.busData[index].RouteName.Zh_tw;
-        this.isLoading = true;
-        try {
-          const estimatedTimeOfArrival =
-            "/Bus/EstimatedTimeOfArrival/City/" +
-            this.selectCity +
-            "/" +
-            RouteName +
-            "?format=JSON";
-          const stopOfRoute =
-            "/Bus/StopOfRoute/City/" +
-            this.selectCity +
-            "/" +
-            RouteName +
-            "?format=JSON";
-          // StopOfRoute
-          this.axios.get(stopOfRoute).then((response) => {
-            const stopData = response.data.filter(
-              (data) => data.RouteUID === nUID
-            );
-            // console.log(stopData);
-            // EstimatedTimeOfArrival
-            this.axios.get(estimatedTimeOfArrival).then((response) => {
-              const estData = response.data;
-              // console.log(estData);
-              this.mergedRouteStopData(stopData, estData);
-              this.startTimer();
-              this.isLoading = false;
-            });
-          });
-        } catch (error) {
-          console.log(error);
-        }
-      }
-    },
     refresh() {
       const scrollPosition = this.$refs.stopInfoContainer.scrollTop;
-
       this.getbusRoute(this.routeUID)
         .then(() => {
           setTimeout(() => {
@@ -347,41 +306,6 @@ export default {
         .catch((error) => {
           console.error(error);
         });
-    },
-    mergedRouteStopData(obj1, obj2) {
-      this.routeStopData = obj1.map((o1) => {
-        o1.Stops = o1.Stops.map((stop) => {
-          const matchingObj = obj2.find((o2) => {
-            let condition =
-              o2.RouteUID === o1.RouteUID &&
-              o2.StopUID == stop.StopUID &&
-              (o2.Direction === o1.Direction || o2.Direction === 255);
-            if (o1.SubRouteUID && o2.SubRouteUID) {
-              condition = condition && o2.SubRouteUID === o1.SubRouteUID;
-            }
-            return condition;
-          });
-          if (matchingObj) {
-            return { ...stop, ...matchingObj };
-          } else {
-            return stop;
-          }
-        });
-        return o1;
-      });
-      console.log(this.routeStopData);
-
-      // subRoute
-      const values = this.routeStopData.map((item) => ({
-        SubRouteUID: item.SubRouteUID,
-        SubRouteName: item.SubRouteName,
-      }));
-      this.subRoute = Array.from(
-        new Set(values.map((item) => JSON.stringify(item)))
-      ).map((item) => JSON.parse(item));
-      if (this.subTabIndex === 0) {
-        this.subTabIndex = this.subRoute[0].SubRouteUID;
-      }
     },
     getColor(value) {
       switch (value) {
@@ -508,27 +432,6 @@ export default {
     timeLeft(newValue) {
       if (newValue === 0) {
         this.refresh();
-      }
-    },
-    selectCity: async function (nCity) {
-      if (nCity != "") {
-        try {
-          const path = "/Bus/Route/City/" + nCity + "?format=JSON";
-          this.axios.get(path).then((response) => {
-            this.busData = response.data;
-          });
-        } catch (error) {
-          console.log(error);
-        }
-      }
-    },
-    routeUID: async function (nUID) {
-      try {
-        this.tabIndex = 0;
-        this.subTabIndex = 0;
-        await this.getbusRoute(nUID);
-      } catch (error) {
-        console.error(error);
       }
     },
     getRouteData(newValue, oldValue) {
@@ -839,8 +742,8 @@ $breakpoint: 992px;
         background-color: #a8dadc80;
       }
       .stopTime {
-        // width: fit-content;
-        min-width: fit-content;
+        width: 100px;
+        // min-width: fit-content;
         padding: 0 5px;
         white-space: nowrap;
         border: 1.5px solid value.$color-navy;
