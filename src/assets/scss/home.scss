@@ -337,7 +337,7 @@ $breakpoint: 992px;
             }
 
             .stopTime {
-                width: 100px;
+                min-width: 100px;
                 // min-width: fit-content;
                 padding: 0 5px;
                 white-space: nowrap;
