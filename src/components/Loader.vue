@@ -5,7 +5,12 @@
 </template>
 
 <script>
-export default {};
+import { mapState } from "vuex";
+export default {
+  computed: {
+    ...mapState(["isLoading"]),
+  },
+};
 </script>
 
 <style lang='scss' scoped>

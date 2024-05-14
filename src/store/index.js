@@ -4,8 +4,10 @@ import CityData from "../assets/json/basicCity.json";
 
 export default createStore({
     state: {
+        // timer
         timePassed: 0,
         timerInterval: null,
+        // bus
         subTabIndex: 0,
         tabIndex: 0,
         cityData: CityData.BasicCity,
@@ -14,10 +16,10 @@ export default createStore({
         routeUID: "",
         routeStopData: [],
         subRoute: [],
+        // loader
         isLoading: false,
     },
     getters: {
-        // bus
         getRouteData(state) {
             let route = state.routeStopData.filter(
                 (item) => item.SubRouteUID === state.subTabIndex
@@ -151,6 +153,8 @@ export default createStore({
         updateSubTabIndex({ commit }, subTabIndex) {
             commit("update_subTabIndex", subTabIndex);
         },
+
+        // timer
         startTimer({ commit }) {
             commit('clear_timerInterval')
             commit('update_timePassed', 0)
@@ -158,6 +162,7 @@ export default createStore({
         },
     },
     mutations: {
+        // bus
         update_selectCity(state, selectCity) {
             state.selectCity = selectCity;
         },
@@ -179,9 +184,13 @@ export default createStore({
         update_subRoute(state, subRoute) {
             state.subRoute = subRoute;
         },
+
+        // loader
         update_isLoading(state, isLoading) {
             state.isLoading = isLoading;
         },
+
+        // bus
         update_timePassed(state, timePassed) {
             state.timePassed = timePassed;
         },
