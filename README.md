@@ -1,6 +1,6 @@
 # 台灣公車時刻查詢
 Demo：[點擊連結](https://wxrrou.github.io/vue-bus/)
-<img src="scr/assets/images/screen.png">
+<img src="src/assets/images/screen.png">
 
 ## 介紹
 - 全台公車動態查詢
